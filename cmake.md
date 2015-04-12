@@ -12,7 +12,7 @@ int maic(void){
 ```
 ######ファイルはCMakeLists.txtに記述する
 ```cmake
-// {PRO_DICT}/CmakeLists.txt
+# {PRO_DICT}/CmakeLists.txt
 cmake_minimum_required(VERSION 2.8)
 project(hello)
 add_executable(hello hello.cpp)
