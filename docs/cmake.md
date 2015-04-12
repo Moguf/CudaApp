@@ -1,6 +1,5 @@
 ##Cmakeの使い方おさらい
 ######基本
-
 ```c++
 // {PRO_DICT}/hello.cpp
 #include <iostoream>
@@ -11,10 +10,15 @@ int maic(void){
 
 }
 ```
-
+######ファイルはCMakeLists.txtに記述する
 ```cmake
-// {PRO_DICT}/CmakeLists.txt
+# {PRO_DICT}/CmakeLists.txt
 cmake_minimum_required(VERSION 2.8)
 project(hello)
 add_executable(hello hello.cpp)
+```
+実行方法
+```shell
+cmake .
+make
 ```
