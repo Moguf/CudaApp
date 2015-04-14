@@ -15,11 +15,15 @@ float distance(float x1,float y1,float z1,float x2,float y2,float z2);
 
 int main(void){
     float *xyz,*vel;
+    //ベルレ法を使うため、初期配置と初速度を定義
     xyz=(float *)malloc(sizeof(float)*MOL_XYZ);
     vel=(float *)malloc(sizeof(float)*MOL_XYZ);
-    
     init(xyz,vel);
+
+    //vmd用に出力する
     show(xyz);
+    
+    //時間発展させる
     calStep(xyz,vel);
     
     free(xyz);
@@ -60,22 +64,27 @@ int calStep(float *xyz,float *vel){
     xyz_nn=(float *)malloc(sizeof(float)*MOL_XYZ);        
     accel=(float *)malloc(sizeof(float)*MOL_XYZ);    
 
-    //first step
+    //xyz,xyz_n,xyz_nnを使ってベルレ法を計算する。
+    //初速度と初期配置からxyz_nを先に計算する。
     force(xyz,accel);
     for(i_xyz=0;i_xyz<MOL_XYZ;i_xyz++){
         xyz_n[i_xyz]=xyz[i_xyz]+h*vel[i_xyz]+h*h/2*accel[i_xyz];
     }
+
+    //以下、時間発展
     for(i_step=1;i_step<STEP_SIZE-2;i_step++){
         force(xyz_n,accel);
         for(i_xyz=0;i_xyz<MOL_XYZ;i_xyz++){
             xyz_nn[i_xyz]=2*xyz_n[i_xyz]-xyz[i_xyz]+h*h*accel[i_xyz];
         }
         show(xyz_n);
+        //座標を更新
         xyz=xyz_n;
         xyz_n=xyz_nn;
     }
     show(xyz_n);
     free(xyz_n);
+    free(xyz_nn);
     return 0;
 }
 
@@ -87,10 +96,14 @@ float force(float *xyz,float *accel){
     for(i_xyz=0;i_xyz<MOL_XYZ;i_xyz++)
         accel[i_xyz]=0;
 
+    //原子数でループを回す。
     for(i_mol=0;i_mol<MOL_SIZE;i_mol++){
         for(j_mol=0;j_mol<MOL_SIZE;j_mol++){
+            //二つの原子の座標を取り出す。
             ix,iy,iz,jx,jy,jz=xyz[i_mol],xyz[i_mol+1],xyz[i_mol+2],xyz[j_mol],xyz[j_mol+1],xyz[j_mol+2];
             dist=distance(ix,iy,iz,jx,jy,jz);
+            
+            //L-Jポテンシャルに基づく力を計算。ここでは加速度に直接代入
             accel[i_mol]+=(1/(pow(dist,13))-1/(pow(dist,7)))*(ix-jx);
             accel[i_mol]+=(1/(pow(dist,13))-1/(pow(dist,7)))*(iy-jy);
             accel[i_mol]+=(1/(pow(dist,13))-1/(pow(dist,7)))*(iz-jz);
